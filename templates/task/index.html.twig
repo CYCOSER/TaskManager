@@ -1,0 +1,358 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mx-auto mt-12 pl-8" data-controller="modal">
+
+        <div class="flex flex-wrap gap-8 items-start w-full">
+
+            <div data-action="click->modal#open"
+                 data-modal-type="create"
+                 class="group rainbow-border rainbow-shadow relative h-[200px] w-[200px] flex shrink-0 flex-col items-center justify-center
+                 rounded-2xl border-2 border-dashed border-gray-600 bg-gray-800/20
+                 transition-all duration-500 cursor-pointer
+                 hover:border-transparent hover:bg-gray-800">
+
+                <div class="flex flex-col items-center transition-all duration-500 group-hover:gap-0">
+                    <span class="text-4xl text-gray-400 transition-all duration-500 group-hover:scale-150">+</span>
+
+                                <span class="max-h-10 opacity-100 transition-all duration-500 group-hover:max-h-0
+                          group-hover:translate-y-10 group-hover:opacity-0">
+                        <span class="block pt-2 text-sm text-gray-400">Создать задачу</span>
+                    </span>
+
+                </div>
+            </div>
+
+            {# Модальное окно создания #}
+            <div data-action="click->modal#closeBackground"
+                 data-modal-target="createModal"
+                 class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60
+                        backdrop-blur-sm px-4">
+                <div class="bg-gray-800 border border-gray-700 w-full max-w-[400px] p-8 rounded-2xl shadow-2xl">
+                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Новая задача</h2>
+
+                    {{ form_start(task_form) }}
+                    <div class="space-y-5">
+                        <div>
+                            {{ form_label(task_form.title, 'Название', {'label_attr': {'class': 'block text-sm font-sm
+                                text-gray-400 mb-1'}}) }}
+                            {{ form_widget(task_form.title, {'attr': {
+                                'class': 'w-full bg-gray-900/70 border-gray-700 rounded-sm text-white text-sm px-4 py-3
+                                focus:ring-2 focus:ring-indigo-500 placeholder:italic placeholder:text-gray-500
+                                placeholder:text-opacity-50 placeholder:font-extralight outline-none transition',
+                                'placeholder': 'Чем займемся?',
+                                autocomplete: 'off'
+                            }}) }}
+                        </div>
+                        <div>
+                            {{ form_label(task_form.description, 'Описание', {'label_attr': {'class': 'block text-sm
+                                font-sm text-gray-400 mb-1'}}) }}
+                            {{ form_widget(task_form.description, {
+                                'attr': {
+                                    'class': 'w-full bg-gray-900/70 border-gray-700 rounded-sm text-gray-400 text-sm italic px-4 py-3
+                                        focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none overflow-y-auto
+                                        placeholder:text-gray-500 placeholder:text-opacity-50 placeholder:font-extralight
+                                        custom-scrollbar max-h-[30vh]',
+                                    'rows': 4,
+                                    'placeholder': 'По подробнее! Или не надо.',
+                                    'oninput': 'this.style.height = ""; this.style.height = this.scrollHeight + "px"'
+                                }
+                            }) }}
+                        </div>
+
+                        <div class="flex gap-4 pt-4">
+                            <button type="button" data-action="click->modal#close" class="flex-1 bg-gray-700 text-white
+                                    text-sm tracking-[0.15em] uppercase py-3 rounded-sm hover:bg-gray-600 transition">отмена</button>
+                            <button type="submit" class="flex-1 bg-indigo-600 tracking-[0.15em] text-white py-3 rounded-sm
+                                    text-sm uppercase hover:bg-indigo-700 transition">создать</button>
+                        </div>
+                    </div>
+                    {{ form_end(task_form) }}
+                </div>
+            </div>
+
+            {# Модальное окно РЕДАКТИРОВАНИЯ #}
+            <div data-action="click->modal#closeBackground"
+                 data-modal-target="editModal"
+                 class="hidden fixed inset-0 z-50 items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+
+                <div class="bg-gray-800 border border-gray-700 w-full max-w-[400px] p-8 rounded-2xl shadow-2xl">
+                    <h2 class="text-2xl font-bold text-white mb-6 text-center">Редактировать задачу</h2>
+
+                    <form data-action="submit->modal#submitEdit" autocomplete="off">
+                        <input type="hidden" data-modal-target="editId">
+
+                        <div class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-sm text-gray-400 mb-1">Название</label>
+                                <input type="text"
+                                       data-modal-target="editTitle"
+                                       required
+                                       autocomplete="off"
+                                       class="w-full bg-gray-900/70 border border-gray-700 rounded-sm text-white text-sm px-4 py-3
+                                             focus:ring-2 focus:ring-indigo-500 placeholder:italic placeholder:text-gray-500
+                                             placeholder:text-opacity-50 placeholder:font-extralight outline-none transition"
+                                       placeholder="Чем займемся?">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-sm text-gray-400 mb-1">Описание</label>
+                                <textarea data-modal-target="editDescription"
+                                          rows="4"
+                                          class="w-full bg-gray-900/70 border-gray-700 rounded-sm text-gray-400 text-sm italic px-4 py-3
+                                                focus:ring-2 focus:ring-indigo-500 outline-none transition resize-none overflow-y-auto
+                                                placeholder:text-gray-500 placeholder:text-opacity-50 placeholder:font-extralight
+                                                custom-scrollbar max-h-[30vh]"
+                                          placeholder="По подробнее! Или не надо."
+                                          oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'">
+
+                                </textarea>
+                            </div>
+                            <div class="flex gap-4 pt-4">
+                                <button type="button"
+                                        data-action="click->modal#close"
+                                        class="flex-1 bg-gray-700 text-white text-sm tracking-[0.15em] uppercase py-3 rounded-sm hover:bg-gray-600 transition cursor-pointer">
+                                    отмена
+                                </button>
+                                <button type="submit"
+                                        class="flex-1 bg-indigo-600 text-white text-sm tracking-[0.15em] uppercase py-3 rounded-sm hover:bg-indigo-700 transition cursor-pointer">
+                                    сохранить
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% for task in tasks %}
+                <div class="contents" data-controller="modal" >
+
+                    {# Карточка #}
+                    <div data-action="click->modal#open"
+                         data-modal-type="view"
+                         class="group relative transition-all h-[200px] w-fit min-w-[200px]
+                         max-w-[350px] flex-none rounded-2xl
+                         bg-gray-800 border border-gray-700 p-4 shadow-lg flex flex-col transition-all
+                         duration-300 hover:-translate-y-2 hover:border-gray-500
+                         {% if task.status == 'new' %} hover:shadow-[0_10px_25px_-5px_rgba(234,179,8,0.3)]
+                         {% elseif task.status == 'in_progress' %} hover:shadow-[0_10px_25px_-5px_rgba(56,189,248,0.3)]
+                         {% elseif task.status == 'done' %} hover:shadow-[0_10px_25px_-5px_rgba(16,185,129,0.3)]
+                         {% endif %}
+                         [.is-delete-intent_&:hover]:!shadow-red-600/50">
+
+                        {# Название #}
+                        <h3 class="text-white font-bold text-lg whitespace-nowrap mb-1">
+                            {{ task.title }}
+                        </h3>
+
+                        {# Описание #}
+                        <div class="relative h-[105px] shrink-0 overflow-hidden px-2 pt-1 bg-gray-900/70
+                        rounded-sm">
+                            <p class="text-gray-400 italic text-xs text-left hyphens-auto leading-relaxed
+                               wrap-break-word w-0 min-w-full">
+                                {{ task.description }}
+                            </p>
+                            <div class="absolute bottom-0 left-0 w-full h-10 bg-gradient-to-t from-gray-900/70
+                            to-transparent pointer-events-none"></div>
+                        </div>
+
+                        {# Кнопачки #}
+                        <div class="pt-[9px] flex items-center justify-between">
+                            <div class="w-full relative flex items-center">
+                                <div class="flex gap-2 opacity-0 translate-y-4 group-hover:opacity-100
+                                     group-hover:translate-y-0 transition-all duration-300">
+
+                                    <button type="button"
+                                            data-action="click->modal#open"
+                                            data-modal-type="edit"
+                                            data-id="{{ task.id }}"
+                                            data-title="{{ task.title|e('html_attr') }}"
+                                            data-description="{{ task.description|e('html_attr') }}"
+                                            class="p-1.5 bg-gray-700 hover:bg-emerald-600 rounded-md text-white
+                                            transition-colors block cursor-pointer"
+                                            title="Редактировать">
+                                        <svg class="h-3.5 w-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24"
+                                             stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2
+                                                  2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+
+                                    <button data-action="click->modal#openDeleteConfirm"
+                                            data-modal-type="delete"
+                                            class="p-1.5 bg-gray-700 hover:bg-red-700
+                                                  rounded-md text-white transition-colors"
+                                            title="Удалить">
+                                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24"
+                                             stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0
+                                                      01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0
+                                                      00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <span class="absolute text-[9px] text-gray-500 font-mono tracking-wider transition-all
+                                      duration-300 group-hover:opacity-0 group-hover:-translate-y-4 pointer-events-none">
+                                      {{ task.createdAt|date('d.m.Y') }}
+                                </span>
+                            </div>
+                            <div class="relative w-[90px] h-[14px] flex-none flex items-center justify-end" data-controller="status">
+                                <button type="button"
+                                        data-status-target="label"
+                                        data-action="click->status#toggle::stop"
+                                        class="relative w-full text-right text-[10px] uppercase tracking-[0.15em]
+                                        outline-none cursor-pointer whitespace-nowrap transition
+                                        after:content-['']
+                                        after:absolute
+                                        after:-inset-y-3
+                                        after:-right-3
+                                        after:left-3
+                                        after:z-10
+                                        {% if task.status == 'new' %} text-yellow-500
+                                        {% elseif task.status == 'in_progress' %} text-sky-400
+                                        {% elseif task.status == 'done' %} text-emerald-400
+                                        {% endif %}">
+                                    {% if task.status == 'new' %} Новое
+                                    {% elseif task.status == 'in_progress' %} В процессе
+                                    {% elseif task.status == 'done' %} Сделано
+                                    {% endif %}
+                                </button>
+
+                                <div data-status-target="menu"
+                                     class="hidden absolute pl-[6px] pr-2 pl- pb-1 -top-[9px] -right-[9px] w-full bg-[#1a1f26] border border-gray-700
+                                     rounded-sm shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden">
+
+                                    {% set status_labels = {'new': 'Новое', 'in_progress': 'В процессе', 'done': 'Сделано'} %}
+
+                                    {# Текущий статус #}
+                                    <button type="button" data-action="click->status#toggle"
+                                            class="w-full text-right text-[10px] uppercase tracking-[0.15em]
+                                            outline-none cursor-pointer whitespace-nowrap transition
+                                            {% if task.status == 'new' %} text-yellow-500
+                                            {% elseif task.status == 'in_progress' %} text-sky-400
+                                            {% elseif task.status == 'done' %} text-emerald-400
+                                            {% endif %}">
+                                        {{ status_labels[task.status] }}
+                                    </button>
+
+                                    {# Другие статусы #}
+                                    {% for key, label in status_labels %}
+                                        {% if key != task.status %}
+                                            <button type="button"
+                                                    data-action="click->status#change::stop"
+                                                    data-status-value="{{ key }}"
+                                                    data-url="{{ path('task_update', {id: task.id}) }}"
+                                                    class="w-full text-right text-[10px] uppercase tracking-[0.15em]
+                                                    outline-none cursor-pointer whitespace-nowrap transition
+                                                    {% if key == 'new' %} text-gray-500 hover:text-yellow-500
+                                                    {% elseif key == 'in_progress' %} text-gray-500 hover:text-sky-400
+                                                    {% elseif key == 'done' %} text-gray-500 hover:text-emerald-400
+                                                    {% endif %}">
+                                                {{ label }}
+                                            </button>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {# Оверлей удаления задачи #}
+                        <div data-modal-target="deleteOverlay"
+                             data-action="click->modal#closeDeleteConfirm"
+                             class="hidden absolute inset-0 z-50 backdrop-blur-md bg-gray-900/80
+                                    flex-col items-center justify-center p-4 text-center rounded-2xl">
+
+                            <div class="flex flex-col gap-3 w-1/2">
+                                <button type="button"
+                                        data-action="click->modal#closeDeleteConfirm"
+                                        class="flex-1 py-2 bg-gray-700 hover:bg-gray-600 text-white text-[10px]
+                                               tracking-[0.19em] uppercase font-bold rounded-sm transition
+                                               duration-300">
+                                    Отмена
+                                </button>
+
+                                <button type="button"
+                                        data-action="click->modal#confirmDelete"
+                                        data-modal-url-value="{{ path('task_delete', {id: task.id}) }}"
+                                        class="flex-1 py-2 bg-red-600 hover:bg-red-700 text-white
+                                               text-[10px] duration-300 tracking-[0.12em] uppercase font-bold
+                                               rounded-sm transition">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Модальное окно просмотра #}
+                    <div data-modal-target="viewModal"
+                         data-action="click->modal#closeBackground"
+                         class="hidden fixed inset-0 z-100 items-center justify-center
+                                bg-black/70 backdrop-blur-md px-4">
+                        <div class="bg-gray-800 border border-gray-700 w-fit min-w-[400px] p-8 rounded-3xl
+                        shadow-2xl relative">
+
+                            {# Хедер окна #}
+                            <div class="mb-3">
+                                <div class="flex justify-between items-start">
+
+                                    {# div для Заголовка и статуса #}
+                                    <div class="flex items-center gap-4 flex-wrap">
+                                        <h2 class="text-3xl font-bold text-white leading-tight">
+                                            {{ task.title }}
+                                        </h2>
+
+                                        {# Статус #}
+                                        <span class="inline-flex items-center px-1.5 py-1.5 rounded-sm text-xs
+                                                    uppercase tracking-[0.15em] leading-none -ml-3 -mt-2 align-top
+                                                    {% if task.status == 'new' %}
+                                                    bg-yellow-400/10 text-yellow-500
+                                                    {% elseif task.status == 'in_progress' %}
+                                                    bg-sky-400/10 text-sky-400
+                                                    {% elseif task.status == 'done' %}
+                                                    bg-emerald-400/10 text-emerald-400
+                                                    {% endif %}">
+
+                                            {{ task.status == 'new' ? 'Новое' :
+                                            (task.status == 'in_progress' ? 'В процессе' : 'Сделано') }}
+                                        </span>
+                                        <div class="text-right">
+                                            <span class="block text-[10px] text-gray-500 font-mono uppercase
+                                                  tracking-[0.1em] mt-1.5">
+                                                {{ task.createdAt|date("d.m.Y H:i") }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# Описание #}
+                            <div class="max-h-[60vh] rounded-sm bg-gray-900/70 overflow-y-auto custom-scrollbar p-3">
+                                <div class="w-full rounded-sm p-2 flex items-stretch">
+                                    <div class="flex w-full rounded-sm pr-2 pl-0
+                                                {% if task.status == 'new' %} bg-yellow-500/10
+                                                {% elseif task.status == 'in_progress' %} bg-sky-400/10
+                                                {% elseif task.status == 'done' %} bg-emerald-500/10
+                                                {% else %} bg-gray-700/10
+                                                {% endif %}">
+                                        <div class="w-1 h-full shrink-0 rounded-sm
+                                                {% if task.status == 'new' %} bg-yellow-500/50
+                                                {% elseif task.status == 'in_progress' %} bg-sky-400/50
+                                                {% elseif task.status == 'done' %} bg-emerald-500/50
+                                                {% else %} bg-gray-700/20
+                                                {% endif %}">
+                                        </div>
+                                        <p class="flex-1 text-gray-300 italic text-sm py-2 px-3 text-justify
+                                                hyphens-auto leading-relaxed wrap-break-word w-0 ">
+                                            {{ task.description }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

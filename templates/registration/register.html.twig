@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-[#111827] flex justify-center pt-24 px-4 box-border">
+
+        <div class="bg-gray-800 border border-gray-700 w-full max-w-[400px] h-fit p-8 rounded-2xl shadow-2xl flex flex-col">
+
+            <h2 class="text-2xl font-bold text-white mb-6 text-center tracking-wide">Регистрация</h2>
+
+            <form method="post" autocomplete="off" class="space-y-5 m-0">
+
+                {% if errors is defined and errors|length > 0 %}
+                    <div class="p-3 bg-red-500/10 border border-red-500/30 rounded-sm text-red-400 text-xs tracking-wide space-y-1">
+                        {% for error in errors %}
+                            <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {# Поле: Email #}
+                <div class="flex flex-col">
+                    <label for="inputEmail" class="block text-sm font-sm text-gray-400 mb-1">Email</label>
+                    <input type="email"
+                           name="email"
+                           id="inputEmail"
+                           class="w-full bg-gray-900/70 border border-gray-700 rounded-sm text-white text-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                           placeholder="your@email.com"
+                           required
+                           autofocus
+                           autocomplete="off">
+                </div>
+
+                {# Поле: Пароль #}
+                <div class="flex flex-col">
+                    <label for="inputPassword" class="block text-sm font-sm text-gray-400 mb-1">Пароль</label>
+                    <input type="password"
+                           name="password"
+                           id="inputPassword"
+                           class="w-full bg-gray-900/70 border border-gray-700 rounded-sm text-white text-sm px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                           placeholder="••••••••••••"
+                           required
+                           autocomplete="new-password">
+                </div>
+
+                {# Кнопка отправки формы #}
+                <div class="pt-2">
+                    <button type="submit"
+                            class="w-full bg-indigo-600 text-white text-sm tracking-[0.15em] uppercase py-3 rounded-sm hover:bg-indigo-700 transition cursor-pointer font-medium shadow-lg shadow-indigo-600/20">
+                        Создать аккаунт
+                    </button>
+                </div>
+
+                {# Ссылка возврата на авторизацию #}
+                <div class="text-center pt-2">
+                    <p class="text-xs text-gray-400">
+                        Уже есть аккаунт?
+                        <a href="{{ path('app_login') }}" class="text-indigo-400 hover:text-indigo-300 transition ml-1 font-medium">
+                            Войти
+                        </a>
+                    </p>
+                </div>
+            </form>
+
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,39 @@
+name: Symfony CI
+
+on:
+    push:
+        branches: [ "main", "master", "develop" ]
+    pull_request:
+        branches: [ "main", "master", "develop" ]
+
+jobs:
+    symfony-tests:
+        runs-on: ubuntu-latest
+
+        steps:
+            # 1. Клонируем репозиторий
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # 2. Поднимаем Docker-окружение через Docker Compose
+            - name: Start Docker containers
+              run: |
+                  docker compose up -d php
+                  # Даем контейнерам пару секунд на полную инициализацию
+                  sleep 5
+
+            # 3. Устанавливаем зависимости Composer внутри контейнера
+            - name: Install Composer Dependencies
+              run: |
+                  docker compose exec -T php composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            # 4. Настраиваем тестовую базу данных внутри Docker
+            - name: Prepare Database and Migrations
+              run: |
+                  docker compose exec -T php bin/console doctrine:database:create --env=test --if-not-exists
+                  docker compose exec -T php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+            # 5. Генерируем Code Coverage отчет (требуется Xdebug или PCOV в Docker-контейнере)
+            - name: Run Tests with Code Coverage
+              run: |
+                  docker compose exec -T php vendor/bin/phpunit --coverage-text --colors=always

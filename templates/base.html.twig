@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Task Manager{% endblock %}</title>
+
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</head>
+<body class="bg-opacity-100 bg-gray-900 text-white min-h-screen">
+    <nav class="bg-gray-800 h-20 flex items-center shadow-l">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="text-xl font-bold">TaskManager</div>
+            <div class="ml-auto flex items-center gap-3">
+                {% if app.user %}
+                    <span class="navbar-text">
+                                {{ app.user.userIdentifier|split('@')|first }}
+                    </span>
+                    <a href="{{ path('app_logout') }}"
+                       onclick="localStorage.removeItem('jwt_token');"
+                       class="rounded-sm bg-indigo-500 px-3.5 py-2.5 text-sm
+                       font-semibold text-white shadow-xs hover:bg-indigo-600 transition">Выйти</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+{% block body %}{% endblock %}
+</body>
+</html>
